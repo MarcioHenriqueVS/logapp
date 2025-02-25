@@ -29,6 +29,7 @@ interface Delivery {
 
 export default function MobileApp() {
   const [activeTab, setActiveTab] = useState<'active' | 'new'>('active');
+  const [searchTerm, setSearchTerm] = useState('');
   const [isFinalizingDelivery, setIsFinalizingDelivery] = useState(false);
   const [selectedDelivery, setSelectedDelivery] = useState<Delivery | null>(null);
   const [movements, setMovements] = useState<ProductMovement[]>([]);
@@ -354,7 +355,6 @@ export default function MobileApp() {
     // Dialog de Seleção de Produtos
     const AddProductsDialog = () => {
       const [selectedProducts, setSelectedProducts] = useState<Record<string, number>>({});
-      const [searchTerm, setSearchTerm] = useState('');
       const [filterType, setFilterType] = useState<'all' | '13kg' | '45kg' | '8kg'>('all');
 
       // Filtra produtos que já estão na carga
@@ -675,7 +675,6 @@ export default function MobileApp() {
   const CreateDeliveryDialog = () => {
     const [selectedVehicle, setSelectedVehicle] = useState('');
     const [selectedProducts, setSelectedProducts] = useState<Record<string, number>>({});
-    const [searchTerm, setSearchTerm] = useState('');
     const [filterType, setFilterType] = useState<'all' | '13kg' | '45kg' | '8kg'>('all');
 
     // Mock de veículos disponíveis
@@ -911,7 +910,25 @@ export default function MobileApp() {
         <div className="p-4">
           {activeTab === 'active' ? (
             <div className="space-y-4">
-              {mockDeliveries.map(delivery => (
+              {/* Campo de Busca */}
+              <div className="relative">
+                <Search size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Buscar por placa ou ID da carga..."
+                  className="w-full pl-10 pr-4 py-3 bg-white rounded-xl shadow-sm text-slate-700 placeholder:text-slate-400"
+                />
+              </div>
+
+              {/* Lista de Cargas Filtrada */}
+              {mockDeliveries
+                .filter(delivery => 
+                  delivery.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                  delivery.vehicle.plate.toLowerCase().includes(searchTerm.toLowerCase())
+                )
+                .map(delivery => (
                 <div
                   key={delivery.id}
                   className="bg-white rounded-xl p-4 shadow-sm space-y-4"
@@ -1021,11 +1038,11 @@ export default function MobileApp() {
           )}
         </div>
 
-        {/* FAB - ajustado para ficar dentro do container */}
+        {/* FAB - ajustado para ficar flutuante */}
         {activeTab === 'active' && (
           <button 
             onClick={() => setActiveTab('new')}
-            className="absolute bottom-6 right-6 w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors"
+            className="fixed bottom-6 right-1/2 translate-x-[190px] w-14 h-14 bg-blue-600 rounded-full flex items-center justify-center shadow-lg hover:bg-blue-700 transition-colors z-20"
           >
             <Plus className="text-white w-6 h-6" />
           </button>
